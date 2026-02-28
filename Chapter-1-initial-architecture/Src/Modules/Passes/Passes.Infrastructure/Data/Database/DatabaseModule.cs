@@ -1,13 +1,14 @@
-namespace EvolutionaryArchitecture.Fitnet.Passes.Data.Database;
+﻿namespace EvolutionaryArchitecture.Fitnet.Passes.Data.Database;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 public static class DatabaseModule
 {
     public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        var dbOptionsSection = configuration.GetSection("Database:Passes");
+        var dbOptionsSection = configuration.GetSection(PassesPersistenceOptions.SectionName);
 
         services.AddOptions<PassesPersistenceOptions>()
             .Bind(dbOptionsSection)
@@ -17,7 +18,7 @@ public static class DatabaseModule
         services.AddDbContext<PassesPersistence>((provider, options) =>
         {
             var dbOptions = provider.GetRequiredService<IOptions<PassesPersistenceOptions>>().Value;
-            options.UseNpgsql(dbOptions.ConnectionString);
+            options.UseNpgsql(dbOptions.Passes);
         });
 
         return services;
@@ -25,7 +26,9 @@ public static class DatabaseModule
 
     public static WebApplication UseDatabase(this WebApplication app)
     {
-        app.UseAutomaticMigrations<PassesPersistence>();
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<PassesPersistence>();
+        db.Database.Migrate();
 
         return app;
     }
