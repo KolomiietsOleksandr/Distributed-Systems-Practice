@@ -1,0 +1,19 @@
+= Microservice Extraction Plan: Passes
+
+== What API will the service have (if we extract it from the monolith)
+Synchronous API (REST or gRPC), for example:
+* POST /api/passes         - create/register a new subscription
+* PATCH /api/passes/{id}/expire - mark a subscription as expired
+* GET /api/passes          - get a list of subscriptions
+
+== What data will be owned by the service
+* Separate physical database.
+* The `Passes` table (and any related tables) will be moved to this database.
+* Other services/modules will not have direct access to these tables.
+
+== How other modules will communicate with it
+* Currently, it is convenient for modules in the monolith to communicate via events.
+* After migration: events via a broker (RabbitMQ/Kafka).
+  - Passes consumes an event of type ContractSigned -> creates a subscription.
+  - Passes publishes PassExpired -> other modules can respond (e.g., Offers generates offers).
+* For guaranteed event delivery we can use Outbox pattern.

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Passes.Domain\Passes.Domain.csproj" />
+    <ProjectReference Include="..\..\..\Fitnet.Common\Fitnet.Common.csproj" />
+  </ItemGroup>
+
+</Project>

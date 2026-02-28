@@ -1,0 +1,25 @@
+== Module name
+*Passes*
+
+== What the module is responsible for
+* Customer subscription lifecycle: creation/activation, validity period storage, expiration.
+* Subscription registration after a successful contract signed event.
+* Obtaining a list of subscriptions.
+* Marking a subscription as invalid/expired.
+
+== What the module is NOT responsible for
+* The legal part of contracts (this is the Contracts area).
+* Marketing offers/discounts (this is the Offers area).
+* Billing/payments (if they appear, this is a separate module).
+
+== Data Ownership
+The *Passes* module fully owns the subscription data.
+
+Main entity: `Pass`
+* `Id` — subscription identifier
+* `CustomerId` — customer identifier
+* `From`, `To` — validity period
+
+The table/schema with subscriptions belongs only to this module: other modules should not directly read/write to these tables only through the module's public contract.
+
+Translated with DeepL.com (free version)
