@@ -11,7 +11,13 @@ public static class PassesInfrastructureModule
         services.AddDatabase(configuration);
 
         services.AddScoped<IPassesRepository, EfPassesRepository>();
-        services.AddScoped<IPassesEventPublisher, EventBusPassesEventPublisher>();
+        services.AddScoped<IPassesOutboxWriter, EfPassesOutboxWriter>();
+        services.AddScoped<IPassesSagaStore, EfPassesSagaStore>();
+        services.AddScoped<IPassesOutboxProcessor, PassesOutboxProcessor>();
+        services.AddScoped<IPassesEventPublisher, OutboxPassesEventPublisher>();
+
+        // Outbox processing can run as a simple BackgroundService (no real broker needed).
+        services.AddHostedService<PassesOutboxBackgroundService>();
         services.AddScoped<IPassesService, PassesService>();
 
         return services;

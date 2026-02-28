@@ -43,6 +43,71 @@ partial class PassesPersistenceModelSnapshot : ModelSnapshot
 
             b.ToTable("Passes", "Passes");
         });
+
+        modelBuilder.Entity("EvolutionaryArchitecture.Fitnet.Passes.Data.Database.OutboxMessage", b =>
+        {
+            b.Property<Guid>("Id")
+                .ValueGeneratedOnAdd()
+                .HasColumnType("uuid");
+
+            b.Property<Guid>("CorrelationId")
+                .HasColumnType("uuid");
+
+            b.Property<DateTimeOffset>("CreatedAt")
+                .HasColumnType("timestamp with time zone");
+
+            b.Property<string>("Payload")
+                .IsRequired()
+                .HasColumnType("text");
+
+            b.Property<DateTimeOffset?>("ProcessedAt")
+                .HasColumnType("timestamp with time zone");
+
+            b.Property<string>("Type")
+                .IsRequired()
+                .HasMaxLength(200)
+                .HasColumnType("character varying(200)");
+
+            b.HasKey("Id");
+
+            b.HasIndex("ProcessedAt");
+
+            b.HasIndex("Type", "CorrelationId")
+                .IsUnique();
+
+            b.ToTable("OutboxMessages", "Passes");
+        });
+
+        modelBuilder.Entity("EvolutionaryArchitecture.Fitnet.Passes.Data.Database.PassesSagaState", b =>
+        {
+            b.Property<Guid>("SagaId")
+                .ValueGeneratedOnAdd()
+                .HasColumnType("uuid");
+
+            b.Property<Guid>("CorrelationId")
+                .HasColumnType("uuid");
+
+            b.Property<DateTimeOffset>("CreatedAt")
+                .HasColumnType("timestamp with time zone");
+
+            b.Property<string>("SagaType")
+                .IsRequired()
+                .HasMaxLength(200)
+                .HasColumnType("character varying(200)");
+
+            b.Property<int>("Status")
+                .HasColumnType("integer");
+
+            b.Property<DateTimeOffset>("UpdatedAt")
+                .HasColumnType("timestamp with time zone");
+
+            b.HasKey("SagaId");
+
+            b.HasIndex("SagaType", "CorrelationId")
+                .IsUnique();
+
+            b.ToTable("SagaStates", "Passes");
+        });
 #pragma warning restore 612, 618
     }
 }

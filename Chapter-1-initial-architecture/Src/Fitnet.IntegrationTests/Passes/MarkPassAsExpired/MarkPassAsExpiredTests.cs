@@ -8,6 +8,8 @@ using EvolutionaryArchitecture.Fitnet.Common.Events.EventBus;
 using EvolutionaryArchitecture.Fitnet.Contracts.SignContract.Events;
 using EvolutionaryArchitecture.Fitnet.Passes.GetAllPasses;
 using EvolutionaryArchitecture.Fitnet.Passes.MarkPassAsExpired.Events;
+using EvolutionaryArchitecture.Fitnet.Passes.Application;
+using Microsoft.Extensions.DependencyInjection;
 
 public sealed class MarkPassAsExpiredTests : IClassFixture<WebApplicationFactory<Program>>,
     IClassFixture<DatabaseContainer>, IAsyncLifetime
@@ -37,6 +39,8 @@ public sealed class MarkPassAsExpiredTests : IClassFixture<WebApplicationFactory
 
         // Act
         await _applicationHttpClient.PatchAsJsonAsync(url, EmptyContent, TestContext.Current.CancellationToken);
+
+        await ProcessPassesOutboxAsync();
 
         // Assert
         EnsureThatPassExpiredEventWasPublished();
@@ -102,6 +106,13 @@ public sealed class MarkPassAsExpiredTests : IClassFixture<WebApplicationFactory
 
     private void EnsureThatPassExpiredEventWasPublished() => _fakeEventBus.Received(1)
         .PublishAsync(Arg.Any<PassExpiredEvent>(), Arg.Any<CancellationToken>());
+
+    private async Task ProcessPassesOutboxAsync()
+    {
+        using var scope = _applicationInMemoryFactory.Services.CreateScope();
+        var processor = scope.ServiceProvider.GetRequiredService<IPassesOutboxProcessor>();
+        await processor.ProcessAsync(CancellationToken.None);
+    }
 
     public ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
